@@ -10,12 +10,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Warm Neutrals -->
-    <!-- Application Structure Plan: A single-page, scrollable application organized into thematic sections. This structure builds understanding progressively, starting from high-level concepts and drilling down into specific workflows. It's more user-friendly for learning than mimicking the actual multi-page UI of the DMT. Key interactions include a dynamic permissions chart and animated workflow diagrams to make complex processes clear and engaging. -->
+    <!-- Application Structure Plan: A detailed, multi-section guide that walks the user through the entire DMT lifecycle. It starts with a project summary, defines user roles, then explains how foundational data is created, and finally illustrates the core end-to-end workflow from document upload to customer access, including the conditional approval. This narrative structure is designed for complete end-to-end understanding. -->
     <!-- Visualization & Content Choices: 
-        - System Components: Goal: Inform. Method: Styled HTML cards in a grid layout. Interaction: None, purely informational. Justification: Simple, clear presentation of the system's building blocks.
-        - Core Data Flow: Goal: Relationships. Method: Interactive HTML/CSS diagram. Interaction: Hover to highlight connections and show tooltips. Justification: Visually demonstrates the crucial mapping logic that is central to the entire system.
-        - User Roles & Permissions: Goal: Compare. Method: Dynamic horizontal bar chart (Chart.js). Interaction: Dropdown to select a user role, which updates the chart. Justification: Provides a clear, quantitative comparison of what each user can do, which is more effective than a dense text description.
-        - Key Workflows: Goal: Change/Process. Method: Detailed, conditional HTML/CSS flowcharts and informational cards. Interaction: Static view for overviews. Justification: Breaks down multi-step workflows into manageable sequences and provides classic flowcharts for at-a-glance understanding of conditional logic.
+        - Project Summary: Goal: Inform. Method: Detailed text blocks. Justification: Provides a clear upfront understanding of the project.
+        - User Roles & Permissions: Goal: Compare. Method: Dynamic horizontal bar chart (Chart.js). Justification: Clear comparison of what each user can do.
+        - Foundational Data Setup: Goal: Inform. Method: Styled cards with icons and descriptions. Justification: Breaks down the initial setup into clear, manageable concepts.
+        - End-to-End Workflow: Goal: Process. Method: A detailed, step-by-step visual diagram using HTML/CSS cards, icons, and arrows. Justification: Illustrates the complete operational flow in a story-like format, making the complex interactions and conditional logic easy to follow.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -51,7 +51,7 @@
             max-width: 900px;
             margin-left: auto;
             margin-right: auto;
-            height: 450px; /* Increased height for more labels */
+            height: 450px;
             max-height: 60vh;
         }
         @media (max-width: 768px) {
@@ -61,59 +61,25 @@
             }
         }
 
-        /* Flowchart Styles */
-        .flowchart-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .flowchart-node {
-            border: 2px solid #a8a29e; /* stone-400 */
+        /* Workflow Diagram Styles */
+        .workflow-card {
             background-color: white;
-            padding: 0.75rem 1rem;
-            text-align: center;
-            border-radius: 0.25rem; /* Rectangle */
-            min-width: 160px;
-            max-width: 280px;
+            border: 1px solid #e7e5e4; /* stone-200 */
+            border-left-width: 4px;
+            padding: 1rem;
+            border-radius: 0.5rem;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
-        .flowchart-node.actor-admin { border-color: #3b82f6; /* blue-500 */ }
-        .flowchart-node.actor-ps-admin { border-color: #16a34a; /* green-600 */ }
-        .flowchart-node.actor-system { border-color: #f97316; /* orange-500 */ }
-        .flowchart-node.flowchart-terminal { border-radius: 9999px; } /* Oval */
-        
-        .flowchart-decision {
-            border-width: 2px;
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); /* Diamond */
-            padding: 1.5rem;
-            min-height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .workflow-arrow {
+            color: #a8a29e; /* stone-400 */
+            font-size: 2.5rem;
+            line-height: 1;
+            text-align: center;
         }
-
-        .flowchart-arrow {
-            position: relative;
-            background-color: #a8a29e; /* stone-400 */
-        }
-        .flowchart-arrow::after {
-            content: '';
-            position: absolute;
-            border: solid #a8a29e; /* stone-400 */
-            border-width: 0 3px 3px 0;
-            display: inline-block;
-            padding: 4px;
-        }
-        .flowchart-arrow.arrow-down::after {
-            bottom: -8px; left: 50%;
-            transform: translateX(-50%) rotate(45deg);
-        }
-        .flowchart-label {
-            position: absolute;
-            background: #F8F7F4;
-            padding: 0 0.25rem;
-            font-weight: 600;
-            font-size: 0.875rem;
+        .decision-gate {
+            border-style: dashed;
+            border-color: #f97316; /* orange-500 */
+            background-color: #fff7ed; /* orange-50 */
         }
     </style>
 </head>
@@ -126,51 +92,64 @@
                 <span class="text-xl font-bold text-stone-800">DMT Interactive Guide</span>
             </div>
             <div class="hidden md:flex space-x-8">
-                <a href="#overview" class="nav-link text-stone-600 font-medium">Overview</a>
-                <a href="#roles" class="nav-link text-stone-600 font-medium">User Roles</a>
-                <a href="#workflows" class="nav-link text-stone-600 font-medium">Workflows</a>
-                <a href="#datamodel" class="nav-link text-stone-600 font-medium">Data Model</a>
-                <a href="#auditing" class="nav-link text-stone-600 font-medium">Auditing</a>
+                <a href="#summary" class="nav-link text-stone-600 font-medium">Summary</a>
+                <a href="#roles" class="nav-link text-stone-600 font-medium">The Players</a>
+                <a href="#workflow" class="nav-link text-stone-600 font-medium">How It Works</a>
             </div>
             <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-stone-600 hover:text-kawasaki-red hover:bg-stone-100">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
             </button>
         </nav>
         <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-4 space-y-2 bg-white">
-            <a href="#overview" class="block nav-link text-stone-600 font-medium rounded-md p-2 hover:bg-stone-100">Overview</a>
-            <a href="#roles" class="block nav-link text-stone-600 font-medium rounded-md p-2 hover:bg-stone-100">User Roles</a>
-            <a href="#workflows" class="block nav-link text-stone-600 font-medium rounded-md p-2 hover:bg-stone-100">Workflows</a>
-            <a href="#datamodel" class="block nav-link text-stone-600 font-medium rounded-md p-2 hover:bg-stone-100">Data Model</a>
-            <a href="#auditing" class="block nav-link text-stone-600 font-medium rounded-md p-2 hover:bg-stone-100">Auditing</a>
+            <a href="#summary" class="block nav-link text-stone-600 font-medium rounded-md p-2 hover:bg-stone-100">Summary</a>
+            <a href="#roles" class="block nav-link text-stone-600 font-medium rounded-md p-2 hover:bg-stone-100">The Players</a>
+            <a href="#workflow" class="block nav-link text-stone-600 font-medium rounded-md p-2 hover:bg-stone-100">How It Works</a>
         </div>
     </header>
 
     <main class="container mx-auto px-6 py-8 md:py-16">
-
-        <!-- Overview Section -->
-        <section id="overview" class="text-center scroll-mt-24">
-            <h1 class="section-title">Deconstructing the Document Management Tool</h1>
-            <p class="section-subtitle">This guide provides an interactive overview of the Kawasaki Document Management Tool (DMT). Explore the system's core components, user roles, and critical workflows to understand how it provides secure, role-based access to technical manuals and documentation.</p>
-            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-kawasaki-red">
-                    <h3 class="font-bold text-xl text-stone-800 mb-2">Secure Logins</h3>
-                    <p class="text-stone-600">Internal Kawasaki users log in via Single Sign-On (SSO), while external customers use a secure email, password, and Multi-Factor Authentication (MFA) process.</p>
+        
+        <section id="summary" class="text-center scroll-mt-24">
+            <h1 class="section-title">Understanding the Document Management Tool</h1>
+            <p class="section-subtitle">This guide provides a high-level overview of the Kawasaki Document Management Tool (DMT), a project designed to modernize how technical documentation is shared and managed.</p>
+            
+            <div class="mt-12 max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg text-left space-y-6">
+                <div>
+                    <h3 class="font-bold text-xl text-stone-800 mb-2">What is the DMT Project?</h3>
+                    <p class="text-stone-600">The DMT is a new, secure web-based application built by Kawasaki. Its primary purpose is to be the central, authoritative source for all technical manuals and guides related to Kawasaki's robotic systems. It is designed to replace older systems with a more intuitive and controlled user experience.</p>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-stone-500">
-                    <h3 class="font-bold text-xl text-stone-800 mb-2">Role-Based Dashboards</h3>
-                    <p class="text-stone-600">Each user role sees a customized dashboard. Admins see pending approvals and recent activity, while customers can pin important documents for quick access.</p>
+                <div>
+                    <h3 class="font-bold text-xl text-stone-800 mb-2">What is its Purpose?</h3>
+                    <p class="text-stone-600">The main goal is to provide an easy and secure way for two main groups of people to get the documents they need:</p>
+                     <ul class="list-disc list-inside mt-2 space-y-1 text-stone-600">
+                        <li><span class="font-semibold">Internal Users:</span> Kawasaki employees from around the world who need access to the full library of technical documents.</li>
+                        <li><span class="font-semibold">External Users (Customers):</span> Clients who have purchased Kawasaki robots and need access to the specific manuals for their equipment.</li>
+                    </ul>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-kawasaki-gray-bg">
-                    <h3 class="font-bold text-xl text-stone-800 mb-2">Conditional Approval Workflow</h3>
-                    <p class="text-stone-600">A key feature is the mandatory approval workflow, which acts as a quality gate whenever an action would alter a customer's view of documents.</p>
+                 <div>
+                    <h3 class="font-bold text-xl text-stone-800 mb-2">Key Project Goals</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                        <div class="border-l-4 border-kawasaki-red pl-4 py-2">
+                            <h4 class="font-semibold">Secure Access</h4>
+                            <p class="text-sm text-stone-500">Ensure users only see documents they are explicitly authorized to view.</p>
+                        </div>
+                        <div class="border-l-4 border-stone-500 pl-4 py-2">
+                            <h4 class="font-semibold">Centralized Hub</h4>
+                            <p class="text-sm text-stone-500">Act as the single source of truth for the latest, approved documentation.</p>
+                        </div>
+                        <div class="border-l-4 border-kawasaki-gray-bg pl-4 py-2">
+                             <h4 class="font-semibold">Controlled Workflow</h4>
+                            <p class="text-sm text-stone-500">Use a formal approval process before customers can access new documents.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- User Roles & Permissions Section -->
         <section id="roles" class="mt-20 md:mt-32 text-center scroll-mt-24">
-            <h2 class="section-title">Who Uses the DMT?</h2>
-            <p class="section-subtitle">The system is built around five distinct user roles, each with a specific set of permissions and responsibilities. Select a role from the dropdown to visualize their access rights for key data types.</p>
+            <h2 class="section-title">The Key Players (User Roles)</h2>
+            <p class="section-subtitle">The system is built around five distinct user roles. Select a role from the dropdown to visualize their access rights. This controls what each person can see and do.</p>
             <div class="mt-12 bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg max-w-5xl mx-auto">
                 <div class="flex justify-center mb-6">
                     <select id="role-selector" class="block w-full max-w-xs p-2 border border-stone-300 rounded-md shadow-sm focus:ring-kawasaki-red focus:border-kawasaki-red">
@@ -188,170 +167,64 @@
             </div>
         </section>
 
-        <!-- Workflows Section -->
-        <section id="workflows" class="mt-20 md:mt-32 text-center scroll-mt-24">
-            <h2 class="section-title">How It Works: Key Processes</h2>
-            <p class="section-subtitle">The DMT operates on controlled workflows for managing users and content. The approval process is conditional—it's only triggered when an action could change what a customer sees.</p>
+        <!-- End-to-End Workflow Section -->
+        <section id="workflow" class="mt-20 md:mt-32 text-center scroll-mt-24">
+            <h2 class="section-title">How the System Works: End-to-End</h2>
+            <p class="section-subtitle">This section explains the entire process, from setting up the system's foundational data to a customer viewing a document for the first time.</p>
 
-            <div class="mt-12 bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg">
-                <h3 class="text-2xl font-bold text-stone-800 mb-4">Customer Onboarding Methods</h3>
-                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-                    <div class="border border-stone-200 p-4 rounded-lg">
-                        <h4 class="font-semibold text-kawasaki-red">1. Invitation Link</h4>
-                        <p class="text-sm text-stone-600 mt-1">Product Support-Admin sends a secure, time-sensitive invitation link to a new customer contact, who then completes their own company setup.</p>
+            <div class="mt-16 max-w-5xl mx-auto">
+                <!-- Part 1: Setting the Stage -->
+                <h3 class="text-2xl font-bold text-stone-800 mb-4">Part 1: Setting the Stage (Creating Master Data)</h3>
+                <p class="text-stone-600 mb-8 max-w-3xl mx-auto">Before any documents can be shared, administrators must set up the foundational data that organizes the entire system. This is the "who" and "what" of the DMT.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <div class="workflow-card border-l-sky-500">
+                        <h4 class="font-semibold text-lg">🗂️ Create Categories</h4>
+                        <p class="text-sm text-stone-600 mt-2">The <span class="font-semibold text-sky-600">Admin</span> defines the logical hierarchy for all documents. This creates a "tree" structure (e.g., Robots → NTS Series → NTS10 Model) that makes finding documents easy.</p>
                     </div>
-                    <div class="border border-stone-200 p-4 rounded-lg">
-                        <h4 class="font-semibold text-kawasaki-red">2. Bulk Insert</h4>
-                        <p class="text-sm text-stone-600 mt-1">Existing customers can be added in bulk by uploading a CSV file. The system validates entries against known company domain names.</p>
+                    <div class="workflow-card border-l-emerald-500">
+                         <h4 class="font-semibold text-lg">🏢 Create Customers</h4>
+                        <p class="text-sm text-stone-600 mt-2">The <span class="font-semibold text-emerald-600">Product Support Admin</span> adds customer companies to the system. This can be done via bulk CSV upload, an invitation link, or manually.</p>
                     </div>
-                    <div class="border border-stone-200 p-4 rounded-lg">
-                        <h4 class="font-semibold text-kawasaki-red">3. Manual Creation</h4>
-                        <p class="text-sm text-stone-600 mt-1">Admins or Product Support can directly create a new customer account by filling out a form within the DMT application.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mt-12">
-                <!-- Flowchart 1: Adding a Document -->
-                <div class="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg">
-                    <h3 class="text-2xl font-bold text-stone-800 mb-2">Workflow 1: Admin Adds a Document</h3>
-                    <p class="text-stone-600 mb-8 mx-auto text-sm">An approval is only required if the document's category is already linked to a customer, as this would immediately alter their view.</p>
-                    <div class="flowchart-container space-y-4">
-                        <div class="flowchart-node actor-admin flowchart-terminal">Admin adds document to a Category</div>
-                        <div class="w-1 h-8 flowchart-arrow arrow-down"></div>
-                        <div class="flowchart-node actor-system flowchart-decision"><span>Is Category mapped to any Customer?</span></div>
-                        <div class="w-full h-12 relative">
-                            <div class="absolute left-0 top-1/2 w-1/2 h-1 bg-stone-400"></div>
-                            <div class="absolute right-0 top-1/2 w-1/2 h-1 bg-stone-400"></div>
-                            <span class="flowchart-label text-red-600" style="left: 25%; transform: translateX(-50%) translateY(-50%);">Yes</span>
-                            <span class="flowchart-label text-green-600" style="right: 25%; transform: translateX(50%) translateY(-50%);">No</span>
-                        </div>
-                        <div class="w-full flex justify-between">
-                            <!-- YES Path -->
-                            <div class="w-1/2 flex flex-col items-center space-y-4 pr-4">
-                                <div class="w-1 h-8 flowchart-arrow arrow-down"></div>
-                                <div class="flowchart-node actor-admin">Send approval request to designated approver</div>
-                                <div class="w-1 h-8 flowchart-arrow arrow-down"></div>
-                                <div class="flowchart-node actor-ps-admin">Approver (Product Support or Super Admin) Reviews & Approves/Rejects</div>
-                            </div>
-                            <!-- NO Path -->
-                            <div class="w-1/2 flex flex-col items-center space-y-4 pl-4">
-                                <div class="w-1 h-8 flowchart-arrow arrow-down"></div>
-                                <div class="flowchart-node actor-system flowchart-terminal">Document added directly. No approval needed.</div>
-                            </div>
-                        </div>
+                     <div class="workflow-card border-l-rose-500">
+                         <h4 class="font-semibold text-lg">👤 Create Users</h4>
+                        <p class="text-sm text-stone-600 mt-2">The <span class="font-semibold text-emerald-600">Product Support Admin</span> creates accounts for individual customer employees and links them to their respective companies.</p>
                     </div>
                 </div>
 
-                <!-- Flowchart 2: Mapping a Customer -->
-                <div class="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-lg">
-                     <h3 class="text-2xl font-bold text-stone-800 mb-2">Workflow 2: Admin Maps a Customer</h3>
-                    <p class="text-stone-600 mb-8 mx-auto text-sm">An approval is only needed if the category being mapped already contains documents, preventing accidental customer access.</p>
-                    <div class="flowchart-container space-y-4">
-                        <div class="flowchart-node actor-admin flowchart-terminal">Admin maps a Customer to a Category</div>
-                        <div class="w-1 h-8 flowchart-arrow arrow-down"></div>
-                        <div class="flowchart-node actor-system flowchart-decision"><span>Does Category contain any Documents?</span></div>
-                         <div class="w-full h-12 relative">
-                            <div class="absolute left-0 top-1/2 w-1/2 h-1 bg-stone-400"></div>
-                            <div class="absolute right-0 top-1/2 w-1/2 h-1 bg-stone-400"></div>
-                            <span class="flowchart-label text-red-600" style="left: 25%; transform: translateX(-50%) translateY(-50%);">Yes</span>
-                            <span class="flowchart-label text-green-600" style="right: 25%; transform: translateX(50%) translateY(-50%);">No</span>
-                        </div>
-                         <div class="w-full flex justify-between">
-                            <!-- YES Path -->
-                            <div class="w-1/2 flex flex-col items-center space-y-4 pr-4">
-                                <div class="w-1 h-8 flowchart-arrow arrow-down"></div>
-                                <div class="flowchart-node actor-admin">Send approval request to designated approver</div>
-                                <div class="w-1 h-8 flowchart-arrow arrow-down"></div>
-                                <div class="flowchart-node actor-ps-admin">Approver (Product Support or Super Admin) Reviews & Approves/Rejects</div>
-                            </div>
-                            <!-- NO Path -->
-                            <div class="w-1/2 flex flex-col items-center space-y-4 pl-4">
-                                <div class="w-1 h-8 flowchart-arrow arrow-down"></div>
-                                <div class="flowchart-node actor-system flowchart-terminal">Mapping created directly. No approval needed.</div>
-                            </div>
-                        </div>
+                <!-- Part 2: The Core Process -->
+                <h3 class="text-2xl font-bold text-stone-800 mb-4 mt-20">Part 2: The Core Process in Action</h3>
+                <p class="text-stone-600 mb-8 max-w-3xl mx-auto">This is the main day-to-day workflow. It shows how a new document is uploaded and made securely available to the correct customer.</p>
+                
+                <div class="space-y-4 text-left">
+                    <!-- Step 1 -->
+                    <div class="workflow-card border-l-sky-500">
+                        <h4 class="font-semibold text-lg">Step 1: Admin Uploads a Document</h4>
+                        <p class="text-sm text-stone-600 mt-1">An <span class="font-semibold text-sky-600">Admin</span> uploads a new manual (e.g., `NTS10-Maintenance.pdf`) into the DMT and links it to its correct place in the category tree.</p>
                     </div>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- Data Model Section -->
-        <section id="datamodel" class="mt-20 md:mt-32 text-center scroll-mt-24">
-            <h2 class="section-title">The Core Data Relationship</h2>
-            <p class="section-subtitle">The entire DMT system is built on a simple but powerful data model. Hover over the elements below to see how Documents, Categories, Customers, and Users are all interconnected through a central mapping process.</p>
-            <div id="data-model-diagram" class="mt-16 p-8 bg-white rounded-lg shadow-lg max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-around space-y-8 md:space-y-0 relative">
-                
-                <div class="data-model-item z-10 p-4 bg-white rounded shadow-lg text-center" data-item="docs">
-                    <span class="text-4xl">📄</span>
-                    <h3 class="font-bold mt-2">Documents</h3>
-                    <p class="text-xs text-stone-500">(Manuals)</p>
-                </div>
-                
-                <div class="data-model-link" data-link="docs-cats">Linked To</div>
-
-                <div class="data-model-item z-10 p-4 bg-white rounded shadow-lg text-center" data-item="cats">
-                    <span class="text-4xl">🗂️</span>
-                    <h3 class="font-bold mt-2">Categories</h3>
-                    <p class="text-xs text-stone-500">(e.g. Robots, NTS)</p>
-                </div>
-                
-                <div class="data-model-link mapping-link" data-link="cats-cust">MAPPED TO</div>
-
-                <div class="data-model-item z-10 p-4 bg-white rounded shadow-lg text-center" data-item="cust">
-                    <span class="text-4xl">🏢</span>
-                    <h3 class="font-bold mt-2">Customers</h3>
-                    <p class="text-xs text-stone-500">(Companies)</p>
-                </div>
-
-                <div class="data-model-link" data-link="cust-users">Linked To</div>
-                
-                <div class="data-model-item z-10 p-4 bg-white rounded shadow-lg text-center" data-item="users">
-                    <span class="text-4xl">👤</span>
-                    <h3 class="font-bold mt-2">Users</h3>
-                    <p class="text-xs text-stone-500">(Employees)</p>
-                </div>
-                
-                <div id="connector-line" class="absolute h-1 md:h-full w-full md:w-1 bg-stone-200 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-300"></div>
-
-            </div>
-        </section>
-
-        <!-- Auditing Section -->
-        <section id="auditing" class="mt-20 md:mt-32 text-center scroll-mt-24">
-            <h2 class="section-title">Audit Trail & Reporting</h2>
-            <p class="section-subtitle">High-level admins can generate detailed audit reports to monitor all activities within the DMT, ensuring security and accountability.</p>
-            <div class="mt-12 max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg text-left grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                    <h3 class="font-semibold text-xl text-stone-800 mb-3">Report Generation</h3>
-                     <ul class="space-y-2 text-stone-600">
-                        <li class="flex items-start">
-                            <span class="text-kawasaki-red mr-2 mt-1">✓</span>
-                            <span>Generate reports in either <span class="font-semibold">PDF</span> or <span class="font-semibold">Excel</span> format.</span>
-                        </li>
-                        <li class="flex items-start">
-                             <span class="text-kawasaki-red mr-2 mt-1">✓</span>
-                           <span>Secure, tamper-proof logs of all critical actions are stored.</span>
-                        </li>
-                    </ul>
-                </div>
-                <div>
-                     <h3 class="font-semibold text-xl text-stone-800 mb-3">Powerful Filtering</h3>
-                     <ul class="space-y-2 text-stone-600">
-                        <li class="flex items-start">
-                            <span class="text-kawasaki-red mr-2 mt-1">✓</span>
-                            <span>Filter audit data by a specific customer or user.</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-kawasaki-red mr-2 mt-1">✓</span>
-                            <span>Filter by audit type (e.g., login, download, upload).</span>
-                        </li>
-                        <li class="flex items-start">
-                           <span class="text-kawasaki-red mr-2 mt-1">✓</span>
-                           <span>Filter by a specific date range.</span>
-                        </li>
-                    </ul>
+                    <div class="workflow-arrow">↓</div>
+                    <!-- Step 2 -->
+                    <div class="workflow-card border-l-sky-500">
+                        <h4 class="font-semibold text-lg">Step 2: Admin Maps a Customer to the Category</h4>
+                        <p class="text-sm text-stone-600 mt-1">The <span class="font-semibold text-sky-600">Admin</span> then creates the critical link: they map a specific <span class="font-semibold text-emerald-600">Customer</span> to the category containing the new document.</p>
+                    </div>
+                    <div class="workflow-arrow">↓</div>
+                    <!-- Step 3: Decision Gate -->
+                    <div class="workflow-card border-l-orange-500 decision-gate">
+                        <h4 class="font-semibold text-lg text-orange-700">Step 3: Conditional Approval Gate</h4>
+                        <p class="text-sm text-orange-600 mt-1">The system automatically checks: "Will this new mapping change what this customer can see?" Since a new document is now available, the answer is <span class="font-bold">YES</span>, and an approval is required.</p>
+                    </div>
+                     <div class="workflow-arrow">↓</div>
+                     <!-- Step 4 -->
+                    <div class="workflow-card border-l-emerald-500">
+                        <h4 class="font-semibold text-lg">Step 4: Product Support Admin Approves the Request</h4>
+                        <p class="text-sm text-stone-600 mt-1">A notification is sent to a <span class="font-semibold text-emerald-600">Product Support Admin</span> (or Super Admin), who acts as the approver. They review the mapping request for accuracy and click "Approve."</p>
+                    </div>
+                     <div class="workflow-arrow">↓</div>
+                     <!-- Step 5 -->
+                     <div class="workflow-card border-l-rose-500">
+                        <h4 class="font-semibold text-lg">Step 5: Customer Gains Access</h4>
+                        <p class="text-sm text-stone-600 mt-1">Once approved, the mapping is active. <span class="font-semibold text-rose-600">Users</span> from that specific customer can now log in and will see the new `NTS10-Maintenance.pdf` available for download.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -477,34 +350,6 @@
                 permissionsChart.update();
             });
             roleSelector.dispatchEvent(new Event('change'));
-            
-            // Data Model Interaction
-            const dataItems = document.querySelectorAll('.data-model-item');
-            const connector = document.getElementById('connector-line');
-            const links = document.querySelectorAll('.data-model-link');
-
-            dataItems.forEach(item => {
-                item.addEventListener('mouseenter', () => {
-                    const itemType = item.dataset.item;
-                    connector.style.backgroundColor = '#e4002b';
-                    
-                    links.forEach(link => {
-                        const linkType = link.dataset.link;
-                        if (linkType.includes(itemType)) {
-                            link.style.opacity = '1';
-                            link.style.fontWeight = 'bold';
-                        }
-                    });
-                });
-                item.addEventListener('mouseleave', () => {
-                    connector.style.backgroundColor = '#d6d3d1';
-                    links.forEach(link => {
-                         link.style.opacity = '0.7';
-                         link.style.fontWeight = 'normal';
-                    });
-                });
-            });
-
 
         });
     </script>
